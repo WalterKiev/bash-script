@@ -12,5 +12,5 @@ if rsh ${hostM[$i]} test -d $1
           then tar fxP temp.tar -C ${destM[$i]}/$(basename $1)
           fi
          else [ "$(md5sum ${destM[$i]}/$(basename $1) | cut -f1 -d' ')" = "$(rsh ${hostM[$i]} md5sum $1 | cut -f1 -d' ')" ]
-done         
+      
        
