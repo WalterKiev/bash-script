@@ -1,3 +1,23 @@
 #!/bin/bash
 HOST1="192.168.0.2"
 DEST=~/backup
+
+while [[ "$rsum" != "$hsum" ]]
+do
+rsh $HOST1 tar cfP /home/$user/$name.tar -C $targetway 
+mkdir -p $DEST
+	timeout 5m scp $remote:/home/$user/$name.tar $DEST
+	rsum=$( rsh $remote md5sum $name.tar | cut -f1 -d' ' )
+	hsum=$( md5sum $DEST/$name.tar | cut -f1 -d' ' )
+	if [[ "$rsum" = "$hsum" ]]
+		then
+			cd $DEST
+			tar xfP $name.tar
+			echo " $adr/$targetway was copy successfully in $dist " >> $4/$adr/log
+		else
+			cd $DEST
+			echo " ATTENTION, it was error in copy file frome remote PC (mistake in md5 summ, maby copy was), if this like error is 3 time in row, so copy was unsuccesfull " >> $4/$adr/log
+	fi
+	rm -f $name.tar
+	rsh $remote rm -f $name.tar
+done
