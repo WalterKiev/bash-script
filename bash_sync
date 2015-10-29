@@ -7,10 +7,12 @@ hostM=( "$host1" )
 echo "Backup date: $(date)" >> $logdest/logfile.txt
 for (( i=0; i<1; i++ ))
 if rsh ${hostM[$i]} test -d $1
-         then scp ${hostM[$i]}:$(dirname $1)/temp.tar ${destM[$i]}
-          if [ "$(md5sum temp.tar | cut -f1 -d' ')" = "$(rsh ${hostM[$i]} md5sum $(dirname $1)/temp.tar | cut -f1 -d' ')" ]
+         then rsh ${hostM[$i]} tar cfP $( dirname $1 )/temp.tar -C $1 .
+              scp ${hostM[$i]}:$(dirname $1)/temp.tar ${destM[$i]}
+          if [ "$(md5sum ${destM[$i]}/temp.tar | cut -f1 -d' ')" = "$(rsh ${hostM[$i]} md5sum $(dirname $1)/temp.tar | cut -f1 -d' ')" ]
           then tar fxP temp.tar -C ${destM[$i]}/$(basename $1)
           fi
          else [ "$(md5sum ${destM[$i]}/$(basename $1) | cut -f1 -d' ')" = "$(rsh ${hostM[$i]} md5sum $1 | cut -f1 -d' ')" ]
+done         
       
        
