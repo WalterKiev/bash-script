@@ -1,28 +1,30 @@
 #!/bin/bash
-host1=192.168.0.2
+host1=192.168.56.102
 dest1=~/backup/host1 #destination
 logdest=~/backup
 destM=( "$dest1" )
 hostM=( "$host1" )
 echo "Backup date: $(date)" >> $logdest/logfile.txt
 for (( i=0; i<1; i++ ))
-if ssh ${hostM[$i]} test -d $1
-         then 
-              mkdir ${destM[$i]}/$(basename $1)
-              ssh ${hostM[$i]} tar cfP $( dirname $1 )/temp.tar -C $1 .
-              scp ${hostM[$i]}:$(dirname $1)/temp.tar ${destM[$i]}
-          if [ "$(md5sum ${destM[$i]}/temp.tar | cut -f1 -d' ')" = "$(ssh ${hostM[$i]} md5sum $(dirname $1)/temp.tar | cut -f1 -d' ')" ]
-          then tar fxP ${destM[$i]}/temp.tar -C ${destM[$i]}/$(basename $1)
-          rm -f ${destM[$i]}/temp.tar
-         ssh  ${hostM[$i]} rm -f $(dirname $1)/temp.tar 
-         else 
-         rm -f ${destM[$i]}/temp.tar
-         ssh  ${hostM[$i]} rm -f $(dirname $1)/temp.tar 
-          fi
-         else scp ${hostM[$i]}:$1 ${destM[$i]}
-         if [ "$(md5sum ${destM[$i]}/$(basename $1) | cut -f1 -d' ')" != "$(ssh ${hostM[$i]} md5sum $1 | cut -f1 -d' ')" ]
-         then rm -f ${destM[$i]}/$(basename $1)
-         fi
+do
+	if ssh ${hostM[$i]} test -d $1
+	then 
+		mkdir ${destM[$i]}/$(basename $1)
+		ssh ${hostM[$i]} tar cfP $( dirname $1 )/temp.tar -C $1 .
+		scp ${hostM[$i]}:$(dirname $1)/temp.tar ${destM[$i]}
+		if [ "$(md5sum ${destM[$i]}/temp.tar | cut -f1 -d' ')" = "$(ssh ${hostM[$i]} md5sum $(dirname $1)/temp.tar | cut -f1 -d' ')" ]
+		then tar fxP ${destM[$i]}/temp.tar -C ${destM[$i]}/$(basename $1)
+		rm -f ${destM[$i]}/temp.tar
+			ssh  ${hostM[$i]} rm -f $(dirname $1)/temp.tar 
+		else 
+		rm -f ${destM[$i]}/temp.tar
+		ssh  ${hostM[$i]} rm -f $(dirname $1)/temp.tar 
+		fi
+	else scp ${hostM[$i]}:$1 ${destM[$i]}
+		if [ "$(md5sum ${destM[$i]}/$(basename $1) | cut -f1 -d' ')" != "$(ssh ${hostM[$i]} md5sum $1 | cut -f1 -d' ')" ]
+		then rm -f ${destM[$i]}/$(basename $1)
+		fi
+	fi
 done         
       
        
